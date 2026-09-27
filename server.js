@@ -65,12 +65,32 @@ async function writeStore(json) {
 
 let items = [];
 let chain = Promise.resolve();
+let storageError = null; // set when the last save failed, cleared when one succeeds
 
-// Writes run one after another; each one saves the latest full list.
-function persist() {
-  const p = chain.then(() => writeStore(JSON.stringify(items)));
-  chain = p.catch(() => {});
-  return p;
+class HttpError extends Error {
+  constructor(status, message) { super(message); this.status = status; }
+}
+
+// Every change runs one at a time: apply it to a copy, save the copy,
+// and only then make it live. If saving fails, nothing changes, so what
+// people see in the app is always what is actually stored.
+function mutate(change) {
+  const run = chain.then(async () => {
+    const next = structuredClone(items);
+    const result = change(next);
+    try {
+      await writeStore(JSON.stringify(next));
+    } catch (err) {
+      storageError = err.message;
+      console.error('Save failed:', err.message);
+      throw new HttpError(502, `Not saved: ${err.message}.`);
+    }
+    storageError = null;
+    items = next;
+    return result;
+  });
+  chain = run.catch(() => {});
+  return run;
 }
 
 // ---------- validation ----------
@@ -103,18 +123,31 @@ app.use('/api', (req, res, next) => {
   next();
 });
 
-app.get('/health', (req, res) => res.json({ ok: true, storage: useGist ? 'gist' : 'file' }));
+const onRenderWithoutStorage = !useGist && process.env.RENDER && !process.env.DATA_DIR;
 
-app.get('/api/items', (req, res) => res.json({ items: sorted() }));
+function storageWarning() {
+  if (storageError) {
+    const hint = useGist ? ' Check that GITHUB_TOKEN on Render has the "gist" scope.' : '';
+    return `Entries are NOT being saved (${storageError}).${hint}`;
+  }
+  if (onRenderWithoutStorage) {
+    return 'Storage is not set up (GIST_ID / GITHUB_TOKEN missing). Entries will be lost when the server sleeps.';
+  }
+  return null;
+}
 
-async function commit(res, extra = {}, status = 200) {
+app.get('/health', (req, res) =>
+  res.json({ ok: !storageWarning(), storage: useGist ? 'gist' : 'file', saving: !storageError, warning: storageWarning() })
+);
+
+app.get('/api/items', (req, res) => res.json({ items: sorted(), warning: storageWarning() }));
+
+async function respond(res, change, status = 200) {
   try {
-    await persist();
-    res.status(status).json({ ...extra, items: sorted() });
+    const extra = (await mutate(change)) || {};
+    res.status(status).json({ ...extra, items: sorted(), warning: storageWarning() });
   } catch (err) {
-    console.error('Save failed:', err.message);
-    setTimeout(() => persist().catch((e) => console.error('Retry failed:', e.message)), 10000);
-    res.status(502).json({ error: 'Storage is not responding. The entry is kept and saving will retry.' });
+    res.status(err.status || 500).json({ error: err.message, warning: storageWarning() });
   }
 }
 
@@ -135,25 +168,26 @@ app.post('/api/items', (req, res) => {
   const createdAt = cleanTime(req.body && req.body.createdAt);
   if (!createdAt) return res.status(400).json({ error: 'Pick a date and time that is not in the future.' });
   const item = { id: crypto.randomUUID(), createdAt, activity };
-  items.push(item);
-  commit(res, { item }, 201);
+  respond(res, (list) => { list.push(item); return { item }; }, 201);
 });
 
 // Update: only the activity can change, never the date & time.
 app.patch('/api/items/:id', (req, res) => {
-  const item = items.find((i) => i.id === req.params.id);
-  if (!item) return res.status(404).json({ error: 'That entry no longer exists.' });
   const activity = cleanActivity(req.body && req.body.activity);
   if (!activity) return res.status(400).json({ error: 'That activity is not valid.' });
-  item.activity = activity;
-  commit(res);
+  respond(res, (list) => {
+    const item = list.find((i) => i.id === req.params.id);
+    if (!item) throw new HttpError(404, 'That entry no longer exists.');
+    item.activity = activity;
+  });
 });
 
 app.delete('/api/items/:id', (req, res) => {
-  const before = items.length;
-  items = items.filter((i) => i.id !== req.params.id);
-  if (items.length === before) return res.status(404).json({ error: 'That entry no longer exists.' });
-  commit(res);
+  respond(res, (list) => {
+    const index = list.findIndex((i) => i.id === req.params.id);
+    if (index === -1) throw new HttpError(404, 'That entry no longer exists.');
+    list.splice(index, 1);
+  });
 });
 
 app.use(express.static(path.join(__dirname, 'public')));
@@ -168,6 +202,17 @@ app.use(express.static(path.join(__dirname, 'public')));
     // Refuse to start rather than risk overwriting real data with an empty list.
     console.error('Could not load saved entries:', err.message);
     process.exit(1);
+  }
+  // Prove on startup that saving works, so a bad token shows up right away
+  // (in the logs, on /health and as a banner in the app) instead of silently.
+  if (useGist) {
+    try {
+      await writeStore(JSON.stringify(items));
+      console.log('Gist is readable and writable.');
+    } catch (err) {
+      storageError = err.message;
+      console.error('Gist is readable but NOT writable:', err.message);
+    }
   }
   const server = app.listen(PORT, () =>
     console.log(`Baby Log on port ${PORT} — ${items.length} entries — storage: ${useGist ? 'GitHub Gist' : DATA_FILE}`)

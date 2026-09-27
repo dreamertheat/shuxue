@@ -812,6 +812,7 @@
           body: body ? JSON.stringify(body) : undefined,
         });
         const data = await res.json().catch(() => ({}));
+        if ('warning' in data) showStatus(data.warning || '');
         if (!res.ok) throw new Error(data.error || `Server returned ${res.status}`);
         return data;
       }
@@ -896,7 +897,6 @@
           const data = await api('GET', '/api/items');
           items = data.items;
           render();
-          showStatus('');
         } catch {
           showStatus("Can't reach the server. It will keep trying.");
         }
