@@ -1,264 +1,692 @@
 <!doctype html>
 <html lang="en">
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Baby Log">
-<meta name="theme-color" content="#EEF2F7" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#131A2B" media="(prefers-color-scheme: dark)">
-<title>Baby Log</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍼</text></svg>">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;700;800&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --bg: #EEF2F7;
-    --surface: #FFFFFF;
-    --ink: #1B2440;
-    --muted: #6B7591;
-    --line: #DCE3EE;
-    --milk: #E3AE32;   --milk-soft: #FBF0D3;
-    --diaper: #4F9A6C; --diaper-soft: #DCEFE2;
-    --burp: #8570CF;   --burp-soft: #E8E3F8;
-    --bath: #2F95B0;   --bath-soft: #D6EEF4;
-    --danger: #C8474B;
-    --display: "Fredoka", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
-    --body: "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
-    --dock-space: 124px;
-  }
-  @media (prefers-color-scheme: dark) {
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Baby Log">
+  <meta name="theme-color" content="#EEF2F7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#131A2B" media="(prefers-color-scheme: dark)">
+  <title>Baby Log</title>
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍼</text></svg>">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito:wght@500;700;800&display=swap"
+    rel="stylesheet">
+  <style>
     :root {
-      --bg: #131A2B;
-      --surface: #1C2438;
-      --ink: #EEF1F8;
-      --muted: #8F99B4;
-      --line: #2A3450;
-      --milk: #F0C75E;   --milk-soft: #3A3322;
-      --diaper: #79C193; --diaper-soft: #1E3A2B;
-      --burp: #A796E6;   --burp-soft: #2E2847;
-      --bath: #6CC3D8;   --bath-soft: #1B3640;
-      --danger: #EF6F72;
+      --bg: #EEF2F7;
+      --surface: #FFFFFF;
+      --ink: #1B2440;
+      --muted: #6B7591;
+      --line: #DCE3EE;
+      --milk: #E3AE32;
+      --milk-soft: #FBF0D3;
+      --diaper: #4F9A6C;
+      --diaper-soft: #DCEFE2;
+      --burp: #8570CF;
+      --burp-soft: #E8E3F8;
+      --bath: #2F95B0;
+      --bath-soft: #D6EEF4;
+      --danger: #C8474B;
+      --display: "Fredoka", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+      --body: "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --dock-space: 124px;
     }
-  }
 
-  * { box-sizing: border-box; }
-  [hidden] { display: none !important; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0;
-    background: var(--bg);
-    color: var(--ink);
-    font: 500 16px/1.45 var(--body);
-    -webkit-font-smoothing: antialiased;
-    -webkit-tap-highlight-color: transparent;
-    padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
-  }
-  button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
-  button:focus-visible, input:focus-visible { outline: 3px solid var(--burp); outline-offset: 2px; }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #131A2B;
+        --surface: #1C2438;
+        --ink: #EEF1F8;
+        --muted: #8F99B4;
+        --line: #2A3450;
+        --milk: #F0C75E;
+        --milk-soft: #3A3322;
+        --diaper: #79C193;
+        --diaper-soft: #1E3A2B;
+        --burp: #A796E6;
+        --burp-soft: #2E2847;
+        --bath: #6CC3D8;
+        --bath-soft: #1B3640;
+        --danger: #EF6F72;
+      }
+    }
 
-  .wrap { max-width: 560px; margin: 0 auto; padding: 0 12px; }
+    * {
+      box-sizing: border-box;
+    }
 
-  /* Today's date is the hero */
-  .top { padding: 28px 4px 4px; }
-  .weekday {
-    margin: 0;
-    font: 600 clamp(2.9rem, 14vw, 4rem)/0.95 var(--display);
-    letter-spacing: -0.02em;
-  }
-  .fulldate { margin: 6px 0 0; font: 700 1.1rem/1.3 var(--body); color: var(--muted); }
+    [hidden] {
+      display: none !important;
+    }
 
-  main { padding-bottom: calc(var(--dock-space) + env(safe-area-inset-bottom)); }
-  .status { margin: 16px 4px 0; color: var(--danger); font-weight: 700; }
+    html {
+      -webkit-text-size-adjust: 100%;
+    }
 
-  /* Log */
-  .day { margin-top: 26px; }
-  .day-head { display: flex; justify-content: space-between; align-items: baseline; padding: 0 6px 8px; }
-  .day-head h2 { margin: 0; font: 600 1.15rem/1.2 var(--display); }
-  .day-head span { color: var(--muted); font-size: .9rem; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font: 500 16px/1.45 var(--body);
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      padding: env(safe-area-inset-top) env(safe-area-inset-right) 0 env(safe-area-inset-left);
+    }
 
-  .entries {
-    list-style: none; margin: 0; padding: 6px 0;
-    background: var(--surface);
-    border-radius: 22px;
-    position: relative;
-  }
-  /* the vertical rail that the dots sit on */
-  .entries::before {
-    content: ""; position: absolute; top: 26px; bottom: 26px;
-    left: calc(12px + 5.2rem + 10px + 7px - 1px);
-    width: 2px; background: var(--line); border-radius: 2px;
-  }
-  .entries:has(> .entry:only-child)::before { display: none; }
-  .entry {
-    display: grid;
-    grid-template-columns: 5.2rem 14px 1fr auto;
-    align-items: center;
-    column-gap: 10px;
-    min-height: 60px;
-    padding: 4px 2px 4px 12px;
-    position: relative;
-  }
-  .entry time { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
-  .dot {
-    width: 14px; height: 14px; border-radius: 50%;
-    background: var(--accent);
-    box-shadow: 0 0 0 4px var(--surface);
-    position: relative;
-  }
-  .what { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
-  .title { font-weight: 800; }
-  .nw { white-space: nowrap; }
-  .icon-btn.sip { color: var(--accent); }
-  .tag {
-    font-size: .85rem; font-weight: 700;
-    padding: 2px 10px; border-radius: 999px;
-    background: var(--accent-soft);
-  }
-  .actions { display: flex; }
-  .icon-btn {
-    width: 42px; height: 44px; display: grid; place-items: center;
-    border: 0; background: transparent; border-radius: 12px; color: var(--muted);
-  }
-  .icon-btn:active { background: var(--bg); }
-  .icon-btn.del:active { color: var(--danger); }
-  .icon-btn svg { width: 20px; height: 20px; }
+    button {
+      font: inherit;
+      color: inherit;
+      cursor: pointer;
+      touch-action: manipulation;
+    }
 
-  [data-type="milk"]   { --accent: var(--milk);   --accent-soft: var(--milk-soft); }
-  [data-type="diaper"] { --accent: var(--diaper); --accent-soft: var(--diaper-soft); }
-  [data-type="burp"]   { --accent: var(--burp);   --accent-soft: var(--burp-soft); }
-  [data-type="bath"]   { --accent: var(--bath);   --accent-soft: var(--bath-soft); }
+    button:focus-visible,
+    input:focus-visible {
+      outline: 3px solid var(--burp);
+      outline-offset: 2px;
+    }
 
-  .empty { margin-top: 26px; padding: 28px 22px; background: var(--surface); border-radius: 22px; color: var(--muted); }
-  .empty p { margin: 0; }
-  .empty .empty-title { font: 600 1.2rem/1.3 var(--display); color: var(--ink); margin-bottom: 4px; }
+    .wrap {
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 0 12px;
+    }
 
-  /* Bottom dock: three big buttons in thumb reach */
-  .dock {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10;
-    background: var(--bg);
-    background: color-mix(in srgb, var(--bg) 86%, transparent);
-    -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
-    border-top: 1px solid var(--line);
-    padding: 12px max(14px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
-  }
-  .dock-inner { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-  .add {
-    min-height: 80px; border: 0; border-radius: 18px; padding: 6px 4px;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
-    background: var(--accent-soft);
-    font-weight: 800; font-size: .88rem; line-height: 1.1;
-    box-shadow: inset 0 -3px 0 var(--accent);
-    transition: transform .08s;
-  }
-  .add:active { transform: scale(.96); }
-  .add .ico { font-size: 1.7rem; line-height: 1; }
+    /* Today's date is the hero */
+    .top {
+      padding: 28px 4px 4px;
+    }
 
-  /* Bottom sheet */
-  .scrim {
-    position: fixed; inset: 0; z-index: 20;
-    background: rgba(10, 14, 28, .45);
-    opacity: 0; pointer-events: none; transition: opacity .2s;
-  }
-  .scrim.show { opacity: 1; pointer-events: auto; }
-  .sheet {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 21;
-    max-width: 560px; margin: 0 auto; max-height: 92dvh; overflow-y: auto;
-    background: var(--surface);
-    border-radius: 28px 28px 0 0;
-    padding: 10px 18px calc(18px + env(safe-area-inset-bottom));
-    transform: translateY(105%); visibility: hidden;
-    transition: transform .28s cubic-bezier(.2, .8, .2, 1), visibility 0s .28s;
-  }
-  .sheet.open { transform: none; visibility: visible; transition: transform .28s cubic-bezier(.2, .8, .2, 1); }
-  .grabber { width: 40px; height: 5px; border-radius: 3px; background: var(--line); margin: 0 auto 14px; }
-  .sheet h3 { margin: 0 0 16px; font: 600 1.6rem/1.2 var(--display); outline: none; }
-  .field { margin-bottom: 18px; }
-  .field-label { display: block; font-weight: 800; font-size: .95rem; color: var(--muted); margin: 0 0 8px 2px; }
+    .weekday {
+      margin: 0;
+      font: 600 clamp(2.9rem, 14vw, 4rem)/0.95 var(--display);
+      letter-spacing: -0.02em;
+    }
 
-  .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 6px; background: var(--bg); padding: 5px; border-radius: 16px; }
-  .seg button { min-height: 48px; border: 0; border-radius: 12px; background: transparent; font-weight: 800; color: var(--muted); }
-  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--ink); box-shadow: inset 0 0 0 2px var(--accent); }
+    .fulldate {
+      margin: 6px 0 0;
+      font: 700 1.1rem/1.3 var(--body);
+      color: var(--muted);
+    }
 
-  .ml-row { display: flex; align-items: center; justify-content: center; gap: 14px; }
-  .round {
-    width: 56px; height: 56px; border-radius: 50%; border: 0;
-    background: var(--bg); font: 600 1.8rem/1 var(--display);
-  }
-  .round:active { background: var(--accent-soft); }
-  .ml-box { display: flex; align-items: baseline; gap: 6px; }
-  .ml-box input {
-    width: 4.2ch; border: 0; background: transparent; color: var(--ink); text-align: right;
-    font: 600 3rem/1 var(--display); padding: 0; -moz-appearance: textfield;
-  }
-  .ml-box input::-webkit-outer-spin-button, .ml-box input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-  .ml-box span { font-weight: 800; color: var(--muted); font-size: 1.1rem; }
-  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; justify-content: center; }
-  .chips button {
-    min-width: 58px; min-height: 44px; padding: 0 12px; border-radius: 999px;
-    border: 2px solid var(--line); background: transparent; font-weight: 800;
-  }
-  .chips button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
-  .seg.grid2 { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
-  .sheet-sub { margin: -10px 0 16px; color: var(--muted); font-weight: 700; }
-  .consume-result { margin: 14px 0 0; text-align: center; font-weight: 800; color: var(--muted); }
-  .consume-result strong { color: var(--ink); font: 600 1.35rem/1.2 var(--display); }
-  .consume-result.bad { color: var(--danger); }
+    main {
+      padding-bottom: calc(var(--dock-space) + env(safe-area-inset-bottom));
+    }
 
-  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .tiles button {
-    min-height: 104px; border-radius: 20px; border: 2px solid var(--line); background: transparent;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
-    font-weight: 800; font-size: 1.05rem;
-  }
-  .tiles .ico { font-size: 2.2rem; line-height: 1; }
-  .tiles button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+    .status {
+      margin: 16px 4px 0;
+      color: var(--danger);
+      font-weight: 700;
+    }
 
-  .simple-note { margin: 0 0 18px; color: var(--muted); }
+    /* Log */
+    .day {
+      margin-top: 26px;
+    }
 
-  .when-input {
-    display: block; width: 100%; min-height: 52px; margin-top: 10px; padding: 0 14px;
-    border: 2px solid var(--accent); border-radius: 14px;
-    background: var(--accent-soft); color: var(--ink);
-    font: 700 1.05rem/1 var(--body); /* 16px+ stops iPhone from zooming in */
-    -webkit-appearance: none; appearance: none;
-  }
-  .when-input::-webkit-date-and-time-value { text-align: left; }
-  .when-hint { margin: 8px 2px 0; color: var(--danger); font-weight: 700; font-size: .9rem; }
-  .sheet-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 6px; }
-  .btn { min-height: 54px; border-radius: 16px; border: 0; font-weight: 800; font-size: 1.05rem; }
-  .btn.ghost { background: var(--bg); }
-  .btn.primary { background: var(--ink); color: var(--surface); }
-  .btn:disabled { opacity: .35; cursor: default; }
+    .day-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding: 0 6px 8px;
+    }
 
-  /* Toast */
-  .toast {
-    position: fixed; left: 50%; z-index: 30;
-    bottom: calc(var(--dock-space) + env(safe-area-inset-bottom) - 8px);
-    transform: translate(-50%, 16px); opacity: 0; pointer-events: none;
-    display: flex; align-items: center; gap: 14px;
-    background: var(--ink); color: var(--surface);
-    padding: 10px 12px 10px 18px; border-radius: 14px; font-weight: 700;
-    max-width: calc(100vw - 32px);
-    transition: opacity .2s, transform .2s;
-  }
-  .toast span { white-space: nowrap; }
-  .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
-  .toast button { border: 0; background: transparent; color: var(--milk); font-weight: 800; min-height: 36px; padding: 0 6px; }
+    .day-head h2 {
+      margin: 0;
+      font: 600 1.15rem/1.2 var(--display);
+    }
 
-  @media (prefers-reduced-motion: reduce) {
-    .sheet, .sheet.open, .scrim, .toast, .add { transition: none; }
-  }
-  @media (max-width: 360px) {
-    .entry { grid-template-columns: 4.1rem 14px 1fr auto; column-gap: 8px; }
-    .entries::before { left: calc(12px + 4.1rem + 8px + 7px - 1px); }
-  }
-</style>
+    .day-head span {
+      color: var(--muted);
+      font-size: .9rem;
+    }
+
+    .entries {
+      list-style: none;
+      margin: 0;
+      padding: 6px 0;
+      background: var(--surface);
+      border-radius: 22px;
+      position: relative;
+    }
+
+    /* the vertical rail that the dots sit on */
+    .entries::before {
+      content: "";
+      position: absolute;
+      top: 26px;
+      bottom: 26px;
+      left: calc(12px + 5.2rem + 10px + 7px - 1px);
+      width: 2px;
+      background: var(--line);
+      border-radius: 2px;
+    }
+
+    .entries:has(> .entry:only-child)::before {
+      display: none;
+    }
+
+    .entry {
+      display: grid;
+      grid-template-columns: 5.2rem 14px 1fr auto;
+      align-items: center;
+      column-gap: 10px;
+      min-height: 60px;
+      padding: 4px 2px 4px 12px;
+      position: relative;
+    }
+
+    .entry time {
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px var(--surface);
+      position: relative;
+    }
+
+    .what {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px 8px;
+      min-width: 0;
+    }
+
+    .title {
+      font-weight: 800;
+    }
+
+    .nw {
+      white-space: nowrap;
+    }
+
+    .icon-btn.sip {
+      color: var(--accent);
+    }
+
+    .tag {
+      font-size: .85rem;
+      font-weight: 700;
+      padding: 2px 10px;
+      border-radius: 999px;
+      background: var(--accent-soft);
+    }
+
+    .actions {
+      display: flex;
+    }
+
+    .icon-btn {
+      width: 42px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      background: transparent;
+      border-radius: 12px;
+      color: var(--muted);
+    }
+
+    .icon-btn:active {
+      background: var(--bg);
+    }
+
+    .icon-btn.del:active {
+      color: var(--danger);
+    }
+
+    .icon-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    [data-type="milk"] {
+      --accent: var(--milk);
+      --accent-soft: var(--milk-soft);
+    }
+
+    [data-type="diaper"] {
+      --accent: var(--diaper);
+      --accent-soft: var(--diaper-soft);
+    }
+
+    [data-type="burp"] {
+      --accent: var(--burp);
+      --accent-soft: var(--burp-soft);
+    }
+
+    [data-type="bath"] {
+      --accent: var(--bath);
+      --accent-soft: var(--bath-soft);
+    }
+
+    .empty {
+      margin-top: 26px;
+      padding: 28px 22px;
+      background: var(--surface);
+      border-radius: 22px;
+      color: var(--muted);
+    }
+
+    .empty p {
+      margin: 0;
+    }
+
+    .empty .empty-title {
+      font: 600 1.2rem/1.3 var(--display);
+      color: var(--ink);
+      margin-bottom: 4px;
+    }
+
+    /* Bottom dock: three big buttons in thumb reach */
+    .dock {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      background: var(--bg);
+      background: color-mix(in srgb, var(--bg) 86%, transparent);
+      -webkit-backdrop-filter: blur(16px);
+      backdrop-filter: blur(16px);
+      border-top: 1px solid var(--line);
+      padding: 12px max(14px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
+    }
+
+    .dock-inner {
+      max-width: 560px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .add {
+      min-height: 80px;
+      border: 0;
+      border-radius: 18px;
+      padding: 6px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      background: var(--accent-soft);
+      font-weight: 800;
+      font-size: .88rem;
+      line-height: 1.1;
+      box-shadow: inset 0 -3px 0 var(--accent);
+      transition: transform .08s;
+    }
+
+    .add:active {
+      transform: scale(.96);
+    }
+
+    .add .ico {
+      font-size: 1.7rem;
+      line-height: 1;
+    }
+
+    /* Bottom sheet */
+    .scrim {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: rgba(10, 14, 28, .45);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .2s;
+    }
+
+    .scrim.show {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 21;
+      max-width: 560px;
+      margin: 0 auto;
+      max-height: 92dvh;
+      overflow-y: auto;
+      background: var(--surface);
+      border-radius: 28px 28px 0 0;
+      padding: 10px 18px calc(18px + env(safe-area-inset-bottom));
+      transform: translateY(105%);
+      visibility: hidden;
+      transition: transform .28s cubic-bezier(.2, .8, .2, 1), visibility 0s .28s;
+    }
+
+    .sheet.open {
+      transform: none;
+      visibility: visible;
+      transition: transform .28s cubic-bezier(.2, .8, .2, 1);
+    }
+
+    .grabber {
+      width: 40px;
+      height: 5px;
+      border-radius: 3px;
+      background: var(--line);
+      margin: 0 auto 14px;
+    }
+
+    .sheet h3 {
+      margin: 0 0 16px;
+      font: 600 1.6rem/1.2 var(--display);
+      outline: none;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field-label {
+      display: block;
+      font-weight: 800;
+      font-size: .95rem;
+      color: var(--muted);
+      margin: 0 0 8px 2px;
+    }
+
+    .seg {
+      display: grid;
+      grid-auto-flow: column;
+      grid-auto-columns: 1fr;
+      gap: 6px;
+      background: var(--bg);
+      padding: 5px;
+      border-radius: 16px;
+    }
+
+    .seg button {
+      min-height: 48px;
+      border: 0;
+      border-radius: 12px;
+      background: transparent;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .seg button[aria-pressed="true"] {
+      background: var(--accent-soft);
+      color: var(--ink);
+      box-shadow: inset 0 0 0 2px var(--accent);
+    }
+
+    .ml-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+    }
+
+    .round {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      border: 0;
+      background: var(--bg);
+      font: 600 1.8rem/1 var(--display);
+    }
+
+    .round:active {
+      background: var(--accent-soft);
+    }
+
+    .ml-box {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+
+    .ml-box input {
+      width: 4.2ch;
+      border: 0;
+      background: transparent;
+      color: var(--ink);
+      text-align: right;
+      font: 600 3rem/1 var(--display);
+      padding: 0;
+      -moz-appearance: textfield;
+    }
+
+    .ml-box input::-webkit-outer-spin-button,
+    .ml-box input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .ml-box span {
+      font-weight: 800;
+      color: var(--muted);
+      font-size: 1.1rem;
+    }
+
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+      justify-content: center;
+    }
+
+    .chips button {
+      min-width: 58px;
+      min-height: 44px;
+      padding: 0 12px;
+      border-radius: 999px;
+      border: 2px solid var(--line);
+      background: transparent;
+      font-weight: 800;
+    }
+
+    .chips button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .seg.grid2 {
+      grid-auto-flow: row;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .sheet-sub {
+      margin: -10px 0 16px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .consume-result {
+      margin: 14px 0 0;
+      text-align: center;
+      font-weight: 800;
+      color: var(--muted);
+    }
+
+    .consume-result strong {
+      color: var(--ink);
+      font: 600 1.35rem/1.2 var(--display);
+    }
+
+    .consume-result.bad {
+      color: var(--danger);
+    }
+
+    .tiles {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .tiles button {
+      min-height: 104px;
+      border-radius: 20px;
+      border: 2px solid var(--line);
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+    .tiles .ico {
+      font-size: 2.2rem;
+      line-height: 1;
+    }
+
+    .tiles button[aria-pressed="true"] {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+
+    .simple-note {
+      margin: 0 0 18px;
+      color: var(--muted);
+    }
+
+    .when-input {
+      display: block;
+      width: 100%;
+      min-height: 52px;
+      margin-top: 10px;
+      padding: 0 14px;
+      border: 2px solid var(--accent);
+      border-radius: 14px;
+      background: var(--accent-soft);
+      color: var(--ink);
+      font: 700 1.05rem/1 var(--body);
+      /* 16px+ stops iPhone from zooming in */
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .when-input::-webkit-date-and-time-value {
+      text-align: left;
+    }
+
+    .when-hint {
+      margin: 8px 2px 0;
+      color: var(--danger);
+      font-weight: 700;
+      font-size: .9rem;
+    }
+
+    .sheet-actions {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .btn {
+      min-height: 54px;
+      border-radius: 16px;
+      border: 0;
+      font-weight: 800;
+      font-size: 1.05rem;
+    }
+
+    .btn.ghost {
+      background: var(--bg);
+    }
+
+    .btn.primary {
+      background: var(--ink);
+      color: var(--surface);
+    }
+
+    .btn:disabled {
+      opacity: .35;
+      cursor: default;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      left: 50%;
+      z-index: 30;
+      bottom: calc(var(--dock-space) + env(safe-area-inset-bottom) - 8px);
+      transform: translate(-50%, 16px);
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      background: var(--ink);
+      color: var(--surface);
+      padding: 10px 12px 10px 18px;
+      border-radius: 14px;
+      font-weight: 700;
+      max-width: calc(100vw - 32px);
+      transition: opacity .2s, transform .2s;
+    }
+
+    .toast span {
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0);
+      pointer-events: auto;
+    }
+
+    .toast button {
+      border: 0;
+      background: transparent;
+      color: var(--milk);
+      font-weight: 800;
+      min-height: 36px;
+      padding: 0 6px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+
+      .sheet,
+      .sheet.open,
+      .scrim,
+      .toast,
+      .add {
+        transition: none;
+      }
+    }
+
+    @media (max-width: 360px) {
+      .entry {
+        grid-template-columns: 4.1rem 14px 1fr auto;
+        column-gap: 8px;
+      }
+
+      .entries::before {
+        left: calc(12px + 4.1rem + 8px + 7px - 1px);
+      }
+    }
+  </style>
 </head>
+
 <body>
   <div class="wrap">
     <header class="top">
@@ -273,8 +701,10 @@
 
   <nav class="dock" aria-label="Add an entry">
     <div class="dock-inner">
-      <button class="add" data-type="milk" data-add="milk"><span class="ico" aria-hidden="true">🍼</span>Give milk</button>
-      <button class="add" data-type="diaper" data-add="diaper"><span class="ico" aria-hidden="true">🧷</span>Change diaper</button>
+      <button class="add" data-type="milk" data-add="milk"><span class="ico" aria-hidden="true">🍼</span>Give
+        milk</button>
+      <button class="add" data-type="diaper" data-add="diaper"><span class="ico" aria-hidden="true">🧷</span>Change
+        diaper</button>
       <button class="add" data-type="burp" data-add="burp"><span class="ico" aria-hidden="true">🫧</span>Burp</button>
       <button class="add" data-type="bath" data-add="bath"><span class="ico" aria-hidden="true">🛁</span>Bath</button>
     </div>
@@ -348,370 +778,375 @@
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script>
-(() => {
-  const $ = (s) => document.querySelector(s);
-  const $$ = (s) => [...document.querySelectorAll(s)];
+  <script>
+    (() => {
+      const $ = (s) => document.querySelector(s);
+      const $$ = (s) => [...document.querySelectorAll(s)];
 
-  const logEl = $('#log'), statusEl = $('#status'), sheetEl = $('#sheet'), scrim = $('#scrim'),
+      const logEl = $('#log'), statusEl = $('#status'), sheetEl = $('#sheet'), scrim = $('#scrim'),
         toastEl = $('#toast'), saveBtn = $('#saveBtn'), mlInput = $('#mlInput');
 
-  const TITLES = { milk: 'Give milk', diaper: 'Change diaper', burp: 'Burp', bath: 'Bath' };
-  const INSTANT = ['burp', 'bath']; // no extra choices, only the time
-  const STATUS = { created: 'Created', finished: 'Finished', left: 'Left', consumed: 'Consumed' };
-  const CONSUMABLE = ['created', 'left']; // milk entries that get the "consumed" shortcut
-  const KIND = { poop: 'Poop', pee: 'Pee' };
-  const CHIPS = [30, 60, 90, 120, 150, 180, 210, 240];
-  const SIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s-6 6.5-6 11a6 6 0 0 0 12 0c0-4.5-6-11-6-11z"/><path d="M9.5 14.5h5"/></svg>';
-  const PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
-  const TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>';
+      const TITLES = { milk: 'Give milk', diaper: 'Change diaper', burp: 'Burp', bath: 'Bath' };
+      const INSTANT = ['burp', 'bath']; // no extra choices, only the time
+      const STATUS = { created: 'Created', finished: 'Finished', left: 'Left', consumed: 'Consumed' };
+      const CONSUMABLE = ['created', 'left', 'consumed']; // milk entries that get the "consumed" shortcut
+      const KIND = { poop: 'Poop', pee: 'Pee' };
+      const CHIPS = [30, 60, 90, 120, 150, 180, 210, 240];
+      const SIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s-6 6.5-6 11a6 6 0 0 0 12 0c0-4.5-6-11-6-11z"/><path d="M9.5 14.5h5"/></svg>';
+      const PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
+      const TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>';
 
-  let items = [];
-  let sheet = null;      // { mode: 'add'|'edit'|'consume', id, type, ml, status, kind, when, at, source }
-  let opener = null;
-  let busy = false;
+      let items = [];
+      let sheet = null;      // { mode: 'add'|'edit'|'consume', id, type, ml, status, kind, when, at, source }
+      let opener = null;
+      let busy = false;
 
-  // ---------- helpers ----------
-  const lastMl = () => { try { return parseInt(localStorage.getItem('lastMl'), 10) || 120; } catch { return 120; } };
-  const rememberMl = (v) => { try { localStorage.setItem('lastMl', String(v)); } catch {} };
+      // ---------- helpers ----------
+      const lastMl = () => { try { return parseInt(localStorage.getItem('lastMl'), 10) || 120; } catch { return 120; } };
+      const rememberMl = (v) => { try { localStorage.setItem('lastMl', String(v)); } catch { } };
 
-  async function api(method, url, body) {
-    const res = await fetch(url, {
-      method,
-      headers: body ? { 'Content-Type': 'application/json' } : {},
-      body: body ? JSON.stringify(body) : undefined,
-    });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok) throw new Error(data.error || `Server returned ${res.status}`);
-    return data;
-  }
+      async function api(method, url, body) {
+        const res = await fetch(url, {
+          method,
+          headers: body ? { 'Content-Type': 'application/json' } : {},
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || `Server returned ${res.status}`);
+        return data;
+      }
 
-  const dayKey = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
-  function dayLabel(d) {
-    const today = new Date();
-    const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
-    if (dayKey(d) === dayKey(today)) return 'Today';
-    if (dayKey(d) === dayKey(yesterday)) return 'Yesterday';
-    return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
-  }
-  const timeOf = (iso) => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const dayKey = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+      function dayLabel(d) {
+        const today = new Date();
+        const yesterday = new Date(); yesterday.setDate(today.getDate() - 1);
+        if (dayKey(d) === dayKey(today)) return 'Today';
+        if (dayKey(d) === dayKey(yesterday)) return 'Yesterday';
+        return d.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
+      }
+      const timeOf = (iso) => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
-  function describe(a) {
-    if (a.type === 'milk') return { title: `Milk ${a.ml} ml`, html: `Milk <span class="nw">${a.ml} ml</span>`, tag: STATUS[a.status] };
-    if (a.type === 'diaper') return { title: 'Diaper', tag: KIND[a.kind] };
-    return { title: a.type === 'bath' ? 'Bath' : 'Burp', tag: '' };
-  }
+      function describe(a) {
+        if (a.type === 'milk') return { title: `Milk ${a.ml} ml`, html: `Milk <span class="nw">${a.ml} ml</span>`, tag: STATUS[a.status] };
+        if (a.type === 'diaper') return { title: 'Diaper', tag: KIND[a.kind] };
+        return { title: a.type === 'bath' ? 'Bath' : 'Burp', tag: '' };
+      }
 
-  function showStatus(msg) { statusEl.textContent = msg; statusEl.hidden = !msg; }
+      function showStatus(msg) { statusEl.textContent = msg; statusEl.hidden = !msg; }
 
-  let toastTimer;
-  function toast(msg, undo) {
-    toastEl.innerHTML = '';
-    const span = document.createElement('span'); span.textContent = msg; toastEl.append(span);
-    if (undo) {
-      const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Undo';
-      b.onclick = () => { hideToast(); undo(); };
-      toastEl.append(b);
-    }
-    toastEl.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(hideToast, undo ? 5000 : 2400);
-  }
-  function hideToast() { toastEl.classList.remove('show'); }
+      let toastTimer;
+      function toast(msg, undo) {
+        toastEl.innerHTML = '';
+        const span = document.createElement('span'); span.textContent = msg; toastEl.append(span);
+        if (undo) {
+          const b = document.createElement('button'); b.type = 'button'; b.textContent = 'Undo';
+          b.onclick = () => { hideToast(); undo(); };
+          toastEl.append(b);
+        }
+        toastEl.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(hideToast, undo ? 5000 : 2400);
+      }
+      function hideToast() { toastEl.classList.remove('show'); }
 
-  // ---------- rendering ----------
-  function renderToday() {
-    const now = new Date();
-    $('#weekday').textContent = now.toLocaleDateString(undefined, { weekday: 'long' });
-    $('#fulldate').textContent = now.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
-  }
+      // ---------- rendering ----------
+      function renderToday() {
+        const now = new Date();
+        $('#weekday').textContent = now.toLocaleDateString(undefined, { weekday: 'long' });
+        $('#fulldate').textContent = now.toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' });
+      }
 
-  function render() {
-    if (!items.length) {
-      logEl.innerHTML = '<div class="empty"><p class="empty-title">Nothing logged yet</p><p>Tap a button below to add the first entry.</p></div>';
-      return;
-    }
-    const groups = new Map();
-    for (const it of items) {
-      const d = new Date(it.createdAt);
-      const k = dayKey(d);
-      if (!groups.has(k)) groups.set(k, { date: d, list: [] });
-      groups.get(k).list.push(it);
-    }
-    let html = '';
-    for (const { date, list } of groups.values()) {
-      html += `<section class="day"><div class="day-head"><h2>${dayLabel(date)}</h2><span>${list.length} ${list.length === 1 ? 'entry' : 'entries'}</span></div><ol class="entries">`;
-      for (const it of list) {
-        const d = describe(it.activity);
-        const t = timeOf(it.createdAt);
-        html += `<li class="entry" data-type="${it.activity.type}">
+      function render() {
+        if (!items.length) {
+          logEl.innerHTML = '<div class="empty"><p class="empty-title">Nothing logged yet</p><p>Tap a button below to add the first entry.</p></div>';
+          return;
+        }
+        const groups = new Map();
+        for (const it of items) {
+          const d = new Date(it.createdAt);
+          const k = dayKey(d);
+          if (!groups.has(k)) groups.set(k, { date: d, list: [] });
+          groups.get(k).list.push(it);
+        }
+        let html = '';
+        for (const { date, list } of groups.values()) {
+          html += `<section class="day"><div class="day-head"><h2>${dayLabel(date)}</h2><span>${list.length} ${list.length === 1 ? 'entry' : 'entries'}</span></div><ol class="entries">`;
+          for (const it of list) {
+            const d = describe(it.activity);
+            const t = timeOf(it.createdAt);
+            html += `<li class="entry" data-type="${it.activity.type}">
           <time datetime="${it.createdAt}">${t}</time>
           <span class="dot" aria-hidden="true"></span>
           <div class="what"><span class="title">${d.html || d.title}</span>${d.tag ? `<span class="tag">${d.tag}</span>` : ''}</div>
           <div class="actions">
             ${it.activity.type === 'milk' && CONSUMABLE.includes(it.activity.status)
-              ? `<button type="button" class="icon-btn sip" data-consume="${it.id}" aria-label="Log how much was consumed from ${d.title} at ${t}">${SIP}</button>` : ''}
+                ? `<button type="button" class="icon-btn sip" data-consume="${it.id}" aria-label="Log how much was consumed from ${d.title} at ${t}">${SIP}</button>` : ''}
             <button type="button" class="icon-btn" data-edit="${it.id}" aria-label="Edit ${d.title} at ${t}">${PENCIL}</button>
             <button type="button" class="icon-btn del" data-del="${it.id}" aria-label="Delete ${d.title} at ${t}">${TRASH}</button>
           </div>
         </li>`;
+          }
+          html += '</ol></section>';
+        }
+        logEl.innerHTML = html;
       }
-      html += '</ol></section>';
-    }
-    logEl.innerHTML = html;
-  }
 
-  async function refresh() {
-    try {
-      const data = await api('GET', '/api/items');
-      items = data.items;
-      render();
-      showStatus('');
-    } catch {
-      showStatus("Can't reach the server. It will keep trying.");
-    }
-  }
+      async function refresh() {
+        try {
+          const data = await api('GET', '/api/items');
+          items = data.items;
+          render();
+          showStatus('');
+        } catch {
+          showStatus("Can't reach the server. It will keep trying.");
+        }
+      }
 
-  // ---------- sheet ----------
-  // datetime-local wants "YYYY-MM-DDTHH:MM" in the phone's own time zone
-  function localInputValue(d) {
-    const pad = (n) => String(n).padStart(2, '0');
-    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-  }
-  const pickedTime = (s) => (s.at ? new Date(s.at) : null);
-  const inFuture = (s) => s.when === 'pick' && pickedTime(s) && pickedTime(s).getTime() > Date.now() + 60000;
+      // ---------- sheet ----------
+      // datetime-local wants "YYYY-MM-DDTHH:MM" in the phone's own time zone
+      function localInputValue(d) {
+        const pad = (n) => String(n).padStart(2, '0');
+        return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+      }
+      const pickedTime = (s) => (s.at ? new Date(s.at) : null);
+      const inFuture = (s) => s.when === 'pick' && pickedTime(s) && pickedTime(s).getTime() > Date.now() + 60000;
 
-  function valid(s) {
-    if (s.mode !== 'edit' && s.when === 'pick') {
-      const t = pickedTime(s);
-      if (!t || Number.isNaN(t.getTime()) || inFuture(s)) return false;
-    }
-    if (s.mode === 'consume') return Number.isInteger(s.ml) && s.ml >= 0 && s.ml < s.source.ml;
-    if (s.type === 'milk') return s.ml > 0 && s.ml <= 2000 && !!s.status;
-    if (s.type === 'diaper') return !!s.kind;
-    return true;
-  }
+      function valid(s) {
+        if (s.mode !== 'edit' && s.when === 'pick') {
+          const t = pickedTime(s);
+          if (!t || Number.isNaN(t.getTime()) || inFuture(s)) return false;
+        }
+        if (s.mode === 'consume') return Number.isInteger(s.ml) && s.ml >= 0 && s.ml < s.source.ml;
+        if (s.type === 'milk') return s.ml > 0 && s.ml <= 2000 && !!s.status;
+        if (s.type === 'diaper') return !!s.kind;
+        return true;
+      }
 
-  function paintSheet() {
-    const s = sheet;
-    sheetEl.dataset.type = s.type;
-    const consume = s.mode === 'consume';
-    $('#sheetTitle').textContent = consume ? 'How much is left?' : s.mode === 'add' ? TITLES[s.type] : 'Edit activity';
-    $('#sheetSub').hidden = !consume;
-    if (consume) $('#sheetSub').textContent = `From the ${s.source.ml} ml bottle at ${timeOf(s.source.createdAt)}`;
-    $('#amountLabel').textContent = consume ? 'Left in bottle' : 'Amount';
-    $('#statusField').hidden = consume;
-    paintConsumeResult();
-    $('#typeField').hidden = s.mode !== 'edit';
-    $('#milkFields').hidden = s.type !== 'milk';
-    $('#diaperFields').hidden = s.type !== 'diaper';
-    const showNote = s.mode === 'edit' && INSTANT.includes(s.type);
-    $('#simpleNote').hidden = !showNote;
-    $('#simpleNote').textContent = showNote ? `Changes this entry to a ${s.type}.` : '';
-    $('#whenField').hidden = s.mode === 'edit';
-    $$('[data-when]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.when === s.when));
-    const whenInput = $('#whenInput');
-    whenInput.hidden = s.when !== 'pick';
-    whenInput.max = localInputValue(new Date());
-    if (document.activeElement !== whenInput) whenInput.value = s.at || '';
-    $('#whenHint').hidden = !inFuture(s);
-    $$('[data-set-type]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.setType === s.type));
-    $$('[data-status]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.status === s.status));
-    $$('[data-kind]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === s.kind));
-    if (document.activeElement !== mlInput) mlInput.value = s.ml ?? '';
-    buildChips();
-    paintChips();
-    saveBtn.textContent = s.mode === 'edit' ? 'Save changes' : 'Add';
-    saveBtn.disabled = !valid(s) || busy;
-  }
-  // Normal: preset amounts. Consume: amounts left (smaller than the bottle) plus "All".
-  function buildChips() {
-    const consume = sheet.mode === 'consume';
-    const key = consume ? `c${sheet.source.ml}` : 'n';
-    const box = $('#chips');
-    if (box.dataset.key === key) return;
-    box.dataset.key = key;
-    const values = consume ? CHIPS.filter((v) => v < sheet.source.ml) : CHIPS;
-    box.innerHTML = values.map((v) => `<button type="button" data-ml="${v}">${v}</button>`).join('')
-      + (consume ? '<button type="button" data-ml="0" aria-label="All of it was consumed, nothing left">All</button>' : '');
-  }
-  function paintConsumeResult() {
-    const el = $('#consumeResult');
-    const s = sheet;
-    el.hidden = s.mode !== 'consume';
-    if (el.hidden) return;
-    el.classList.remove('bad');
-    if (!Number.isInteger(s.ml)) {
-      el.textContent = 'Enter what is left, or tap All if it was all drunk.';
-    } else if (s.ml >= s.source.ml) {
-      el.classList.add('bad');
-      el.textContent = s.ml === s.source.ml ? 'That means nothing was consumed.' : `Can't be more than ${s.source.ml} ml.`;
-    } else {
-      el.innerHTML = `Consumed <strong>${s.source.ml - s.ml} ml</strong>`;
-    }
-  }
-  function paintChips() {
-    $$('#chips button').forEach((b) => b.setAttribute('aria-pressed', Number(b.dataset.ml) === sheet.ml));
-  }
+      function paintSheet() {
+        const s = sheet;
+        sheetEl.dataset.type = s.type;
+        const consume = s.mode === 'consume';
+        $('#sheetTitle').textContent = consume ? 'How much is left?' : s.mode === 'add' ? TITLES[s.type] : 'Edit activity';
+        $('#sheetSub').hidden = !consume;
+        if (consume) $('#sheetSub').textContent = `From the ${s.source.ml} ml bottle at ${timeOf(s.source.createdAt)}`;
+        $('#amountLabel').textContent = consume ? 'Left in bottle' : 'Amount';
+        $('#statusField').hidden = consume;
+        paintConsumeResult();
+        $('#typeField').hidden = s.mode !== 'edit';
+        $('#milkFields').hidden = s.type !== 'milk';
+        $('#diaperFields').hidden = s.type !== 'diaper';
+        const showNote = s.mode === 'edit' && INSTANT.includes(s.type);
+        $('#simpleNote').hidden = !showNote;
+        $('#simpleNote').textContent = showNote ? `Changes this entry to a ${s.type}.` : '';
+        $('#whenField').hidden = s.mode === 'edit';
+        $$('[data-when]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.when === s.when));
+        const whenInput = $('#whenInput');
+        whenInput.hidden = s.when !== 'pick';
+        whenInput.max = localInputValue(new Date());
+        if (document.activeElement !== whenInput) whenInput.value = s.at || '';
+        $('#whenHint').hidden = !inFuture(s);
+        $$('[data-set-type]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.setType === s.type));
+        $$('[data-status]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.status === s.status));
+        $$('[data-kind]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === s.kind));
+        if (document.activeElement !== mlInput) mlInput.value = s.ml ?? '';
+        buildChips();
+        paintChips();
+        saveBtn.textContent = s.mode === 'edit' ? 'Save changes' : 'Add';
+        saveBtn.disabled = !valid(s) || busy;
+      }
+      // Normal: preset amounts. Consume: amounts left (smaller than the bottle) plus "All".
+      function buildChips() {
+        const consume = sheet.mode === 'consume';
+        const key = consume ? `c${sheet.source.ml}` : 'n';
+        const box = $('#chips');
+        if (box.dataset.key === key) return;
+        box.dataset.key = key;
+        const values = consume ? CHIPS.filter((v) => v < sheet.source.ml) : CHIPS;
+        box.innerHTML = values.map((v) => `<button type="button" data-ml="${v}">${v}</button>`).join('')
+          + (consume ? '<button type="button" data-ml="0" aria-label="All of it was consumed, nothing left">All</button>' : '');
+      }
+      function paintConsumeResult() {
+        const el = $('#consumeResult');
+        const s = sheet;
+        el.hidden = s.mode !== 'consume';
+        if (el.hidden) return;
+        el.classList.remove('bad');
+        if (!Number.isInteger(s.ml)) {
+          el.textContent = 'Enter what is left, or tap All if it was all drunk.';
+        } else if (s.ml >= s.source.ml) {
+          el.classList.add('bad');
+          el.textContent = s.ml === s.source.ml ? 'That means nothing was consumed.' : `Can't be more than ${s.source.ml} ml.`;
+        } else if (s.ml === 0) {
+          el.innerHTML = `All gone, saves as Finished <strong>${s.source.ml} ml</strong>`;
+        } else {
+          el.innerHTML = `Consumed <strong>${s.source.ml - s.ml} ml</strong>`;
+        }
+      }
+      function paintChips() {
+        $$('#chips button').forEach((b) => b.setAttribute('aria-pressed', Number(b.dataset.ml) === sheet.ml));
+      }
 
-  function openSheet(state) {
-    sheet = state;
-    opener = document.activeElement;
-    hideToast();
-    paintSheet();
-    scrim.classList.add('show');
-    sheetEl.classList.add('open');
-    document.body.style.overflow = 'hidden';
-    setTimeout(() => $('#sheetTitle').focus({ preventScroll: true }), 50);
-  }
-  function closeSheet() {
-    sheetEl.classList.remove('open');
-    scrim.classList.remove('show');
-    document.body.style.overflow = '';
-    mlInput.blur();
-    sheet = null;
-    if (opener && opener.focus) opener.focus({ preventScroll: true });
-  }
+      function openSheet(state) {
+        sheet = state;
+        opener = document.activeElement;
+        hideToast();
+        paintSheet();
+        scrim.classList.add('show');
+        sheetEl.classList.add('open');
+        document.body.style.overflow = 'hidden';
+        setTimeout(() => $('#sheetTitle').focus({ preventScroll: true }), 50);
+      }
+      function closeSheet() {
+        sheetEl.classList.remove('open');
+        scrim.classList.remove('show');
+        document.body.style.overflow = '';
+        mlInput.blur();
+        sheet = null;
+        if (opener && opener.focus) opener.focus({ preventScroll: true });
+      }
 
-  function activityFrom(s) {
-    if (s.mode === 'consume') return { type: 'milk', ml: s.source.ml - s.ml, status: 'consumed' };
-    if (s.type === 'milk') return { type: 'milk', ml: s.ml, status: s.status };
-    if (s.type === 'diaper') return { type: 'diaper', kind: s.kind };
-    return { type: s.type };
-  }
+      function activityFrom(s) {
+        // Nothing left -> the bottle is done, so the new entry is "Finished" for the whole amount.
+        if (s.mode === 'consume' && s.ml === 0) return { type: 'milk', ml: s.source.ml, status: 'finished' };
+        if (s.mode === 'consume') return { type: 'milk', ml: s.source.ml - s.ml, status: 'consumed' };
+        if (s.type === 'milk') return { type: 'milk', ml: s.ml, status: s.status };
+        if (s.type === 'diaper') return { type: 'diaper', kind: s.kind };
+        return { type: s.type };
+      }
 
-  async function addActivity(activity, createdAt) {
-    const data = await api('POST', '/api/items', { activity, createdAt });
-    items = data.items;
-    render();
-    const id = data.item.id;
-    const when = createdAt
-      ? ` for ${new Date(createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`
-      : '';
-    toast(`${describe(activity).title} added${when}`, async () => {
-      try { items = (await api('DELETE', `/api/items/${id}`)).items; render(); }
-      catch (e) { toast(e.message); }
-    });
-  }
-
-  async function save() {
-    if (!sheet || !valid(sheet) || busy) return;
-    busy = true; saveBtn.disabled = true;
-    const s = sheet;
-    const activity = activityFrom(s);
-    try {
-      if (s.mode !== 'edit') {
-        await addActivity(activity, s.when === 'pick' ? pickedTime(s).toISOString() : undefined);
-      } else {
-        items = (await api('PATCH', `/api/items/${s.id}`, { activity })).items;
+      async function addActivity(activity, createdAt) {
+        const data = await api('POST', '/api/items', { activity, createdAt });
+        items = data.items;
         render();
-        toast('Changes saved');
+        const id = data.item.id;
+        const when = createdAt
+          ? ` for ${new Date(createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`
+          : '';
+        toast(`${describe(activity).title} added${when}`, async () => {
+          try { items = (await api('DELETE', `/api/items/${id}`)).items; render(); }
+          catch (e) { toast(e.message); }
+        });
       }
-      if (activity.type === 'milk' && s.mode !== 'consume') rememberMl(activity.ml);
-      closeSheet();
-    } catch (e) {
-      toast(e.message);
+
+      async function save() {
+        if (!sheet || !valid(sheet) || busy) return;
+        busy = true; saveBtn.disabled = true;
+        const s = sheet;
+        const activity = activityFrom(s);
+        try {
+          if (s.mode !== 'edit') {
+            await addActivity(activity, s.when === 'pick' ? pickedTime(s).toISOString() : undefined);
+          } else {
+            items = (await api('PATCH', `/api/items/${s.id}`, { activity })).items;
+            render();
+            toast('Changes saved');
+          }
+          if (activity.type === 'milk' && s.mode !== 'consume') rememberMl(activity.ml);
+          closeSheet();
+        } catch (e) {
+          toast(e.message);
+          refresh();
+        } finally {
+          busy = false;
+          if (sheet) paintSheet();
+        }
+      }
+
+      // ---------- events ----------
+
+      $$('[data-add]').forEach((btn) => btn.addEventListener('click', async () => {
+        const type = btn.dataset.add;
+        openSheet({ mode: 'add', type, ml: lastMl(), status: null, kind: null, when: 'now', at: '' });
+      }));
+
+      logEl.addEventListener('click', async (e) => {
+        const consume = e.target.closest('[data-consume]');
+        if (consume) {
+          const it = items.find((i) => i.id === consume.dataset.consume);
+          if (!it) return;
+          openSheet({ mode: 'consume', type: 'milk', ml: null, source: { ml: it.activity.ml, createdAt: it.createdAt }, when: 'now', at: '' });
+          return;
+        }
+        const edit = e.target.closest('[data-edit]');
+        const del = e.target.closest('[data-del]');
+        if (edit) {
+          const it = items.find((i) => i.id === edit.dataset.edit);
+          if (!it) return;
+          const a = it.activity;
+          openSheet({ mode: 'edit', id: it.id, type: a.type, ml: a.ml || lastMl(), status: a.status || null, kind: a.kind || null });
+        }
+        if (del) {
+          const it = items.find((i) => i.id === del.dataset.del);
+          if (!it) return;
+          if (!confirm(`Delete "${describe(it.activity).title}" at ${timeOf(it.createdAt)}?`)) return;
+          try { items = (await api('DELETE', `/api/items/${it.id}`)).items; render(); toast('Entry deleted'); }
+          catch (err) { toast(err.message); refresh(); }
+        }
+      });
+
+      sheetEl.addEventListener('click', (e) => {
+        if (!sheet) return;
+        const t = e.target.closest('button');
+        if (!t) return;
+        if (t.dataset.setType) {
+          sheet.type = t.dataset.setType;
+          if (sheet.type === 'milk' && !sheet.ml) sheet.ml = lastMl();
+        } else if (t.dataset.step) {
+          if (sheet.mode === 'consume') {
+            sheet.ml = Math.min(sheet.source.ml, Math.max(0, (sheet.ml ?? 0) + Number(t.dataset.step)));
+          } else {
+            sheet.ml = Math.min(2000, Math.max(10, (sheet.ml || 0) + Number(t.dataset.step)));
+          }
+          mlInput.value = sheet.ml;
+        } else if (t.dataset.ml) {
+          sheet.ml = Number(t.dataset.ml);
+          mlInput.value = sheet.ml;
+        } else if (t.dataset.status) {
+          sheet.status = t.dataset.status;
+        } else if (t.dataset.kind) {
+          sheet.kind = t.dataset.kind;
+        } else if (t.dataset.when) {
+          sheet.when = t.dataset.when;
+          if (sheet.when === 'pick' && !sheet.at) sheet.at = localInputValue(new Date());
+        } else {
+          return;
+        }
+        paintSheet();
+      });
+
+      mlInput.addEventListener('input', () => {
+        if (!sheet) return;
+        const v = parseInt(mlInput.value, 10);
+        sheet.ml = Number.isNaN(v) ? (sheet.mode === 'consume' ? null : 0) : v;
+        paintChips();
+        paintConsumeResult();
+        saveBtn.disabled = !valid(sheet) || busy;
+      });
+      mlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') mlInput.blur(); });
+
+      $('#whenInput').addEventListener('input', (e) => {
+        if (!sheet) return;
+        sheet.at = e.target.value;
+        $('#whenHint').hidden = !inFuture(sheet);
+        saveBtn.disabled = !valid(sheet) || busy;
+      });
+
+      saveBtn.addEventListener('click', save);
+      $('#cancelBtn').addEventListener('click', closeSheet);
+      scrim.addEventListener('click', closeSheet);
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sheet) closeSheet(); });
+
+      // Keep every phone in sync, and roll the date over at midnight.
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') { renderToday(); refresh(); }
+      });
+      setInterval(() => { if (document.visibilityState === 'visible') refresh(); }, 15000);
+      setInterval(() => { renderToday(); render(); }, 60000);
+
+      renderToday();
       refresh();
-    } finally {
-      busy = false;
-      if (sheet) paintSheet();
-    }
-  }
-
-  // ---------- events ----------
-
-  $$('[data-add]').forEach((btn) => btn.addEventListener('click', async () => {
-    const type = btn.dataset.add;
-    openSheet({ mode: 'add', type, ml: lastMl(), status: null, kind: null, when: 'now', at: '' });
-  }));
-
-  logEl.addEventListener('click', async (e) => {
-    const consume = e.target.closest('[data-consume]');
-    if (consume) {
-      const it = items.find((i) => i.id === consume.dataset.consume);
-      if (!it) return;
-      openSheet({ mode: 'consume', type: 'milk', ml: null, source: { ml: it.activity.ml, createdAt: it.createdAt }, when: 'now', at: '' });
-      return;
-    }
-    const edit = e.target.closest('[data-edit]');
-    const del = e.target.closest('[data-del]');
-    if (edit) {
-      const it = items.find((i) => i.id === edit.dataset.edit);
-      if (!it) return;
-      const a = it.activity;
-      openSheet({ mode: 'edit', id: it.id, type: a.type, ml: a.ml || lastMl(), status: a.status || null, kind: a.kind || null });
-    }
-    if (del) {
-      const it = items.find((i) => i.id === del.dataset.del);
-      if (!it) return;
-      if (!confirm(`Delete "${describe(it.activity).title}" at ${timeOf(it.createdAt)}?`)) return;
-      try { items = (await api('DELETE', `/api/items/${it.id}`)).items; render(); toast('Entry deleted'); }
-      catch (err) { toast(err.message); refresh(); }
-    }
-  });
-
-  sheetEl.addEventListener('click', (e) => {
-    if (!sheet) return;
-    const t = e.target.closest('button');
-    if (!t) return;
-    if (t.dataset.setType) {
-      sheet.type = t.dataset.setType;
-      if (sheet.type === 'milk' && !sheet.ml) sheet.ml = lastMl();
-    } else if (t.dataset.step) {
-      if (sheet.mode === 'consume') {
-        sheet.ml = Math.min(sheet.source.ml, Math.max(0, (sheet.ml ?? 0) + Number(t.dataset.step)));
-      } else {
-        sheet.ml = Math.min(2000, Math.max(10, (sheet.ml || 0) + Number(t.dataset.step)));
-      }
-      mlInput.value = sheet.ml;
-    } else if (t.dataset.ml) {
-      sheet.ml = Number(t.dataset.ml);
-      mlInput.value = sheet.ml;
-    } else if (t.dataset.status) {
-      sheet.status = t.dataset.status;
-    } else if (t.dataset.kind) {
-      sheet.kind = t.dataset.kind;
-    } else if (t.dataset.when) {
-      sheet.when = t.dataset.when;
-      if (sheet.when === 'pick' && !sheet.at) sheet.at = localInputValue(new Date());
-    } else {
-      return;
-    }
-    paintSheet();
-  });
-
-  mlInput.addEventListener('input', () => {
-    if (!sheet) return;
-    const v = parseInt(mlInput.value, 10);
-    sheet.ml = Number.isNaN(v) ? (sheet.mode === 'consume' ? null : 0) : v;
-    paintChips();
-    paintConsumeResult();
-    saveBtn.disabled = !valid(sheet) || busy;
-  });
-  mlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') mlInput.blur(); });
-
-  $('#whenInput').addEventListener('input', (e) => {
-    if (!sheet) return;
-    sheet.at = e.target.value;
-    $('#whenHint').hidden = !inFuture(sheet);
-    saveBtn.disabled = !valid(sheet) || busy;
-  });
-
-  saveBtn.addEventListener('click', save);
-  $('#cancelBtn').addEventListener('click', closeSheet);
-  scrim.addEventListener('click', closeSheet);
-  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && sheet) closeSheet(); });
-
-  // Keep every phone in sync, and roll the date over at midnight.
-  document.addEventListener('visibilitychange', () => {
-    if (document.visibilityState === 'visible') { renderToday(); refresh(); }
-  });
-  setInterval(() => { if (document.visibilityState === 'visible') refresh(); }, 15000);
-  setInterval(() => { renderToday(); render(); }, 60000);
-
-  renderToday();
-  refresh();
-})();
-</script>
+    })();
+  </script>
 </body>
+
 </html>
