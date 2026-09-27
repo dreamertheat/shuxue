@@ -88,6 +88,7 @@ function cleanActivity(a) {
     return { type: 'diaper', kind: a.kind };
   }
   if (a.type === 'burp') return { type: 'burp' };
+  if (a.type === 'bath') return { type: 'bath' };
   return null;
 }
 

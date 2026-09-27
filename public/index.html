@@ -25,6 +25,7 @@
     --milk: #E3AE32;   --milk-soft: #FBF0D3;
     --diaper: #4F9A6C; --diaper-soft: #DCEFE2;
     --burp: #8570CF;   --burp-soft: #E8E3F8;
+    --bath: #2F95B0;   --bath-soft: #D6EEF4;
     --danger: #C8474B;
     --display: "Fredoka", ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
     --body: "Nunito", ui-rounded, system-ui, -apple-system, "Segoe UI", sans-serif;
@@ -40,6 +41,7 @@
       --milk: #F0C75E;   --milk-soft: #3A3322;
       --diaper: #79C193; --diaper-soft: #1E3A2B;
       --burp: #A796E6;   --burp-soft: #2E2847;
+      --bath: #6CC3D8;   --bath-soft: #1B3640;
       --danger: #EF6F72;
     }
   }
@@ -108,7 +110,7 @@
     position: relative;
   }
   .what { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
-  .title { font-weight: 800; }
+  .title { font-weight: 800; white-space: nowrap; }
   .tag {
     font-size: .85rem; font-weight: 700;
     padding: 2px 10px; border-radius: 999px;
@@ -126,6 +128,7 @@
   [data-type="milk"]   { --accent: var(--milk);   --accent-soft: var(--milk-soft); }
   [data-type="diaper"] { --accent: var(--diaper); --accent-soft: var(--diaper-soft); }
   [data-type="burp"]   { --accent: var(--burp);   --accent-soft: var(--burp-soft); }
+  [data-type="bath"]   { --accent: var(--bath);   --accent-soft: var(--bath-soft); }
 
   .empty { margin-top: 26px; padding: 28px 22px; background: var(--surface); border-radius: 22px; color: var(--muted); }
   .empty p { margin: 0; }
@@ -140,12 +143,12 @@
     border-top: 1px solid var(--line);
     padding: 12px max(14px, env(safe-area-inset-right)) calc(12px + env(safe-area-inset-bottom)) max(14px, env(safe-area-inset-left));
   }
-  .dock-inner { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .dock-inner { max-width: 560px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
   .add {
-    min-height: 80px; border: 0; border-radius: 20px;
+    min-height: 80px; border: 0; border-radius: 18px; padding: 6px 4px;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
     background: var(--accent-soft);
-    font-weight: 800; font-size: .95rem; line-height: 1.1;
+    font-weight: 800; font-size: .88rem; line-height: 1.1;
     box-shadow: inset 0 -3px 0 var(--accent);
     transition: transform .08s;
   }
@@ -207,7 +210,7 @@
   .tiles .ico { font-size: 2.2rem; line-height: 1; }
   .tiles button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
 
-  .burp-note { margin: 0 0 18px; color: var(--muted); }
+  .simple-note { margin: 0 0 18px; color: var(--muted); }
 
   .sheet-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 6px; }
   .btn { min-height: 54px; border-radius: 16px; border: 0; font-weight: 800; font-size: 1.05rem; }
@@ -226,6 +229,7 @@
     max-width: calc(100vw - 32px);
     transition: opacity .2s, transform .2s;
   }
+  .toast span { white-space: nowrap; }
   .toast.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
   .toast button { border: 0; background: transparent; color: var(--milk); font-weight: 800; min-height: 36px; padding: 0 6px; }
 
@@ -255,6 +259,7 @@
       <button class="add" data-type="milk" data-add="milk"><span class="ico" aria-hidden="true">🍼</span>Give milk</button>
       <button class="add" data-type="diaper" data-add="diaper"><span class="ico" aria-hidden="true">🧷</span>Change diaper</button>
       <button class="add" data-type="burp" data-add="burp"><span class="ico" aria-hidden="true">🫧</span>Burp</button>
+      <button class="add" data-type="bath" data-add="bath"><span class="ico" aria-hidden="true">🛁</span>Bath</button>
     </div>
   </nav>
 
@@ -269,6 +274,7 @@
         <button type="button" data-set-type="milk">Milk</button>
         <button type="button" data-set-type="diaper">Diaper</button>
         <button type="button" data-set-type="burp">Burp</button>
+        <button type="button" data-set-type="bath">Bath</button>
       </div>
     </div>
 
@@ -302,7 +308,7 @@
       </div>
     </div>
 
-    <p class="burp-note" id="burpFields">Changes this entry to a burp.</p>
+    <p class="simple-note" id="simpleNote"></p>
 
     <div class="sheet-actions">
       <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
@@ -320,7 +326,8 @@
   const logEl = $('#log'), statusEl = $('#status'), sheetEl = $('#sheet'), scrim = $('#scrim'),
         toastEl = $('#toast'), saveBtn = $('#saveBtn'), mlInput = $('#mlInput');
 
-  const TITLES = { milk: 'Give milk', diaper: 'Change diaper', burp: 'Burp' };
+  const TITLES = { milk: 'Give milk', diaper: 'Change diaper', burp: 'Burp', bath: 'Bath' };
+  const INSTANT = ['burp', 'bath']; // saved with one tap, no choices
   const STATUS = { created: 'Created', finished: 'Finished', left: 'Left' };
   const KIND = { poop: 'Poop', pee: 'Pee' };
   const CHIPS = [30, 60, 90, 120, 150, 180, 210, 240];
@@ -360,7 +367,7 @@
   function describe(a) {
     if (a.type === 'milk') return { title: `Milk ${a.ml} ml`, tag: STATUS[a.status] };
     if (a.type === 'diaper') return { title: 'Diaper', tag: KIND[a.kind] };
-    return { title: 'Burp', tag: '' };
+    return { title: a.type === 'bath' ? 'Bath' : 'Burp', tag: '' };
   }
 
   function showStatus(msg) { statusEl.textContent = msg; statusEl.hidden = !msg; }
@@ -445,7 +452,8 @@
     $('#typeField').hidden = s.mode !== 'edit';
     $('#milkFields').hidden = s.type !== 'milk';
     $('#diaperFields').hidden = s.type !== 'diaper';
-    $('#burpFields').hidden = s.type !== 'burp';
+    $('#simpleNote').hidden = !INSTANT.includes(s.type);
+    $('#simpleNote').textContent = INSTANT.includes(s.type) ? `Changes this entry to a ${s.type}.` : '';
     $$('[data-set-type]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.setType === s.type));
     $$('[data-status]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.status === s.status));
     $$('[data-kind]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === s.kind));
@@ -479,7 +487,7 @@
   function activityFrom(s) {
     if (s.type === 'milk') return { type: 'milk', ml: s.ml, status: s.status };
     if (s.type === 'diaper') return { type: 'diaper', kind: s.kind };
-    return { type: 'burp' };
+    return { type: s.type };
   }
 
   async function addActivity(activity) {
@@ -522,10 +530,10 @@
 
   $$('[data-add]').forEach((btn) => btn.addEventListener('click', async () => {
     const type = btn.dataset.add;
-    if (type === 'burp') {
+    if (INSTANT.includes(type)) {
       if (busy) return;
       busy = true;
-      try { await addActivity({ type: 'burp' }); } catch (e) { toast(e.message); }
+      try { await addActivity({ type }); } catch (e) { toast(e.message); }
       finally { busy = false; }
       return;
     }
