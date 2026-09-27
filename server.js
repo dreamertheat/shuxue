@@ -118,11 +118,23 @@ async function commit(res, extra = {}, status = 200) {
   }
 }
 
-// Add: the server stamps the date & time.
+// Add: date & time is "now", or a past time the person picked.
+// It is set once here and can never be changed afterwards.
+function cleanTime(value) {
+  if (value === undefined || value === null || value === '') return new Date().toISOString();
+  const t = new Date(value);
+  if (Number.isNaN(t.getTime())) return null;
+  if (t.getTime() > Date.now() + 5 * 60 * 1000) return null; // no future entries (5 min grace for clock drift)
+  if (t.getFullYear() < 2000) return null;
+  return t.toISOString();
+}
+
 app.post('/api/items', (req, res) => {
   const activity = cleanActivity(req.body && req.body.activity);
   if (!activity) return res.status(400).json({ error: 'That activity is not valid.' });
-  const item = { id: crypto.randomUUID(), createdAt: new Date().toISOString(), activity };
+  const createdAt = cleanTime(req.body && req.body.createdAt);
+  if (!createdAt) return res.status(400).json({ error: 'Pick a date and time that is not in the future.' });
+  const item = { id: crypto.randomUUID(), createdAt, activity };
   items.push(item);
   commit(res, { item }, 201);
 });

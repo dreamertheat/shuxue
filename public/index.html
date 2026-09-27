@@ -212,6 +212,15 @@
 
   .simple-note { margin: 0 0 18px; color: var(--muted); }
 
+  .when-input {
+    display: block; width: 100%; min-height: 52px; margin-top: 10px; padding: 0 14px;
+    border: 2px solid var(--accent); border-radius: 14px;
+    background: var(--accent-soft); color: var(--ink);
+    font: 700 1.05rem/1 var(--body); /* 16px+ stops iPhone from zooming in */
+    -webkit-appearance: none; appearance: none;
+  }
+  .when-input::-webkit-date-and-time-value { text-align: left; }
+  .when-hint { margin: 8px 2px 0; color: var(--danger); font-weight: 700; font-size: .9rem; }
   .sheet-actions { display: grid; grid-template-columns: 1fr 2fr; gap: 10px; margin-top: 6px; }
   .btn { min-height: 54px; border-radius: 16px; border: 0; font-weight: 800; font-size: 1.05rem; }
   .btn.ghost { background: var(--bg); }
@@ -310,6 +319,16 @@
 
     <p class="simple-note" id="simpleNote"></p>
 
+    <div class="field" id="whenField">
+      <span class="field-label">Time</span>
+      <div class="seg" id="whenSeg">
+        <button type="button" data-when="now">Now</button>
+        <button type="button" data-when="pick">Choose time</button>
+      </div>
+      <input class="when-input" id="whenInput" type="datetime-local" aria-label="Date and time" hidden>
+      <p class="when-hint" id="whenHint" hidden>That time is in the future.</p>
+    </div>
+
     <div class="sheet-actions">
       <button type="button" class="btn ghost" id="cancelBtn">Cancel</button>
       <button type="button" class="btn primary" id="saveBtn">Add</button>
@@ -327,7 +346,7 @@
         toastEl = $('#toast'), saveBtn = $('#saveBtn'), mlInput = $('#mlInput');
 
   const TITLES = { milk: 'Give milk', diaper: 'Change diaper', burp: 'Burp', bath: 'Bath' };
-  const INSTANT = ['burp', 'bath']; // saved with one tap, no choices
+  const INSTANT = ['burp', 'bath']; // no extra choices, only the time
   const STATUS = { created: 'Created', finished: 'Finished', left: 'Left' };
   const KIND = { poop: 'Poop', pee: 'Pee' };
   const CHIPS = [30, 60, 90, 120, 150, 180, 210, 240];
@@ -439,7 +458,19 @@
   }
 
   // ---------- sheet ----------
+  // datetime-local wants "YYYY-MM-DDTHH:MM" in the phone's own time zone
+  function localInputValue(d) {
+    const pad = (n) => String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  }
+  const pickedTime = (s) => (s.at ? new Date(s.at) : null);
+  const inFuture = (s) => s.when === 'pick' && pickedTime(s) && pickedTime(s).getTime() > Date.now() + 60000;
+
   function valid(s) {
+    if (s.mode === 'add' && s.when === 'pick') {
+      const t = pickedTime(s);
+      if (!t || Number.isNaN(t.getTime()) || inFuture(s)) return false;
+    }
     if (s.type === 'milk') return s.ml > 0 && s.ml <= 2000 && !!s.status;
     if (s.type === 'diaper') return !!s.kind;
     return true;
@@ -452,8 +483,16 @@
     $('#typeField').hidden = s.mode !== 'edit';
     $('#milkFields').hidden = s.type !== 'milk';
     $('#diaperFields').hidden = s.type !== 'diaper';
-    $('#simpleNote').hidden = !INSTANT.includes(s.type);
-    $('#simpleNote').textContent = INSTANT.includes(s.type) ? `Changes this entry to a ${s.type}.` : '';
+    const showNote = s.mode === 'edit' && INSTANT.includes(s.type);
+    $('#simpleNote').hidden = !showNote;
+    $('#simpleNote').textContent = showNote ? `Changes this entry to a ${s.type}.` : '';
+    $('#whenField').hidden = s.mode !== 'add';
+    $$('[data-when]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.when === s.when));
+    const whenInput = $('#whenInput');
+    whenInput.hidden = s.when !== 'pick';
+    whenInput.max = localInputValue(new Date());
+    if (document.activeElement !== whenInput) whenInput.value = s.at || '';
+    $('#whenHint').hidden = !inFuture(s);
     $$('[data-set-type]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.setType === s.type));
     $$('[data-status]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.status === s.status));
     $$('[data-kind]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === s.kind));
@@ -469,6 +508,7 @@
   function openSheet(state) {
     sheet = state;
     opener = document.activeElement;
+    hideToast();
     paintSheet();
     scrim.classList.add('show');
     sheetEl.classList.add('open');
@@ -490,12 +530,15 @@
     return { type: s.type };
   }
 
-  async function addActivity(activity) {
-    const data = await api('POST', '/api/items', { activity });
+  async function addActivity(activity, createdAt) {
+    const data = await api('POST', '/api/items', { activity, createdAt });
     items = data.items;
     render();
     const id = data.item.id;
-    toast(`${describe(activity).title} added`, async () => {
+    const when = createdAt
+      ? ` for ${new Date(createdAt).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`
+      : '';
+    toast(`${describe(activity).title} added${when}`, async () => {
       try { items = (await api('DELETE', `/api/items/${id}`)).items; render(); }
       catch (e) { toast(e.message); }
     });
@@ -508,7 +551,7 @@
     const activity = activityFrom(s);
     try {
       if (s.mode === 'add') {
-        await addActivity(activity);
+        await addActivity(activity, s.when === 'pick' ? pickedTime(s).toISOString() : undefined);
       } else {
         items = (await api('PATCH', `/api/items/${s.id}`, { activity })).items;
         render();
@@ -530,14 +573,7 @@
 
   $$('[data-add]').forEach((btn) => btn.addEventListener('click', async () => {
     const type = btn.dataset.add;
-    if (INSTANT.includes(type)) {
-      if (busy) return;
-      busy = true;
-      try { await addActivity({ type }); } catch (e) { toast(e.message); }
-      finally { busy = false; }
-      return;
-    }
-    openSheet({ mode: 'add', type, ml: lastMl(), status: null, kind: null });
+    openSheet({ mode: 'add', type, ml: lastMl(), status: null, kind: null, when: 'now', at: '' });
   }));
 
   logEl.addEventListener('click', async (e) => {
@@ -575,6 +611,9 @@
       sheet.status = t.dataset.status;
     } else if (t.dataset.kind) {
       sheet.kind = t.dataset.kind;
+    } else if (t.dataset.when) {
+      sheet.when = t.dataset.when;
+      if (sheet.when === 'pick' && !sheet.at) sheet.at = localInputValue(new Date());
     } else {
       return;
     }
@@ -588,6 +627,13 @@
     saveBtn.disabled = !valid(sheet) || busy;
   });
   mlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') mlInput.blur(); });
+
+  $('#whenInput').addEventListener('input', (e) => {
+    if (!sheet) return;
+    sheet.at = e.target.value;
+    $('#whenHint').hidden = !inFuture(sheet);
+    saveBtn.disabled = !valid(sheet) || busy;
+  });
 
   saveBtn.addEventListener('click', save);
   $('#cancelBtn').addEventListener('click', closeSheet);
