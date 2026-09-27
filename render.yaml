@@ -1,0 +1,25 @@
+# Render Blueprint (optional). You can also set everything up by hand in the dashboard.
+services:
+  - type: web
+    name: baby-log
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      # Free plan: keep data in a private GitHub Gist (see README).
+      - key: GIST_ID
+        sync: false
+      - key: GITHUB_TOKEN
+        sync: false
+
+    # --- Alternative: paid plan with a persistent disk (no GitHub needed) ---
+    # Change plan to "starter", delete the two envVars above, and uncomment:
+    # envVars:
+    #   - key: DATA_DIR
+    #     value: /var/data
+    # disk:
+    #   name: baby-log-data
+    #   mountPath: /var/data
+    #   sizeGB: 1
