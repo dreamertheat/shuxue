@@ -80,7 +80,7 @@ function cleanActivity(a) {
   if (a.type === 'milk') {
     const ml = Math.round(Number(a.ml));
     if (!Number.isFinite(ml) || ml <= 0 || ml > 2000) return null;
-    if (!['created', 'finished', 'left'].includes(a.status)) return null;
+    if (!['created', 'finished', 'left', 'consumed'].includes(a.status)) return null;
     return { type: 'milk', ml, status: a.status };
   }
   if (a.type === 'diaper') {

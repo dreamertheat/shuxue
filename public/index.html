@@ -47,6 +47,7 @@
   }
 
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
@@ -60,7 +61,7 @@
   button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
   button:focus-visible, input:focus-visible { outline: 3px solid var(--burp); outline-offset: 2px; }
 
-  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 12px; }
 
   /* Today's date is the hero */
   .top { padding: 28px 4px 4px; }
@@ -89,7 +90,7 @@
   /* the vertical rail that the dots sit on */
   .entries::before {
     content: ""; position: absolute; top: 26px; bottom: 26px;
-    left: calc(16px + 5.2rem + 12px + 7px - 1px);
+    left: calc(12px + 5.2rem + 10px + 7px - 1px);
     width: 2px; background: var(--line); border-radius: 2px;
   }
   .entries:has(> .entry:only-child)::before { display: none; }
@@ -97,9 +98,9 @@
     display: grid;
     grid-template-columns: 5.2rem 14px 1fr auto;
     align-items: center;
-    column-gap: 12px;
+    column-gap: 10px;
     min-height: 60px;
-    padding: 4px 6px 4px 16px;
+    padding: 4px 2px 4px 12px;
     position: relative;
   }
   .entry time { font-weight: 800; font-variant-numeric: tabular-nums; white-space: nowrap; }
@@ -110,7 +111,9 @@
     position: relative;
   }
   .what { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; }
-  .title { font-weight: 800; white-space: nowrap; }
+  .title { font-weight: 800; }
+  .nw { white-space: nowrap; }
+  .icon-btn.sip { color: var(--accent); }
   .tag {
     font-size: .85rem; font-weight: 700;
     padding: 2px 10px; border-radius: 999px;
@@ -118,7 +121,7 @@
   }
   .actions { display: flex; }
   .icon-btn {
-    width: 44px; height: 44px; display: grid; place-items: center;
+    width: 42px; height: 44px; display: grid; place-items: center;
     border: 0; background: transparent; border-radius: 12px; color: var(--muted);
   }
   .icon-btn:active { background: var(--bg); }
@@ -200,6 +203,11 @@
     border: 2px solid var(--line); background: transparent; font-weight: 800;
   }
   .chips button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent-soft); }
+  .seg.grid2 { grid-auto-flow: row; grid-template-columns: 1fr 1fr; }
+  .sheet-sub { margin: -10px 0 16px; color: var(--muted); font-weight: 700; }
+  .consume-result { margin: 14px 0 0; text-align: center; font-weight: 800; color: var(--muted); }
+  .consume-result strong { color: var(--ink); font: 600 1.35rem/1.2 var(--display); }
+  .consume-result.bad { color: var(--danger); }
 
   .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .tiles button {
@@ -246,8 +254,8 @@
     .sheet, .sheet.open, .scrim, .toast, .add { transition: none; }
   }
   @media (max-width: 360px) {
-    .entry { grid-template-columns: 4.1rem 14px 1fr auto; column-gap: 10px; }
-    .entries::before { left: calc(16px + 4.1rem + 10px + 7px - 1px); }
+    .entry { grid-template-columns: 4.1rem 14px 1fr auto; column-gap: 8px; }
+    .entries::before { left: calc(12px + 4.1rem + 8px + 7px - 1px); }
   }
 </style>
 </head>
@@ -276,6 +284,7 @@
   <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
     <div class="grabber" aria-hidden="true"></div>
     <h3 id="sheetTitle" tabindex="-1"></h3>
+    <p class="sheet-sub" id="sheetSub" hidden></p>
 
     <div class="field" id="typeField">
       <span class="field-label">Activity</span>
@@ -289,23 +298,25 @@
 
     <div id="milkFields">
       <div class="field">
-        <span class="field-label">Amount</span>
+        <span class="field-label" id="amountLabel">Amount</span>
         <div class="ml-row">
           <button type="button" class="round" data-step="-10" aria-label="10 ml less">−</button>
           <label class="ml-box">
-            <input id="mlInput" type="number" inputmode="numeric" min="1" max="2000" aria-label="Amount in ml">
+            <input id="mlInput" type="number" inputmode="numeric" min="0" max="2000" aria-label="Amount in ml">
             <span>ml</span>
           </label>
           <button type="button" class="round" data-step="10" aria-label="10 ml more">+</button>
         </div>
         <div class="chips" id="chips"></div>
+        <p class="consume-result" id="consumeResult" hidden></p>
       </div>
-      <div class="field">
+      <div class="field" id="statusField">
         <span class="field-label">Bottle</span>
-        <div class="seg" id="statusSeg">
+        <div class="seg grid2" id="statusSeg">
           <button type="button" data-status="created">Created</button>
           <button type="button" data-status="finished">Finished</button>
           <button type="button" data-status="left">Left</button>
+          <button type="button" data-status="consumed">Consumed</button>
         </div>
       </div>
     </div>
@@ -347,14 +358,16 @@
 
   const TITLES = { milk: 'Give milk', diaper: 'Change diaper', burp: 'Burp', bath: 'Bath' };
   const INSTANT = ['burp', 'bath']; // no extra choices, only the time
-  const STATUS = { created: 'Created', finished: 'Finished', left: 'Left' };
+  const STATUS = { created: 'Created', finished: 'Finished', left: 'Left', consumed: 'Consumed' };
+  const CONSUMABLE = ['created', 'left']; // milk entries that get the "consumed" shortcut
   const KIND = { poop: 'Poop', pee: 'Pee' };
   const CHIPS = [30, 60, 90, 120, 150, 180, 210, 240];
+  const SIP = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3s-6 6.5-6 11a6 6 0 0 0 12 0c0-4.5-6-11-6-11z"/><path d="M9.5 14.5h5"/></svg>';
   const PENCIL = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h4L19 9l-4-4L4 16v4z"/><path d="M13.5 6.5l4 4"/></svg>';
   const TRASH = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>';
 
   let items = [];
-  let sheet = null;      // { mode: 'add'|'edit', id, type, ml, status, kind }
+  let sheet = null;      // { mode: 'add'|'edit'|'consume', id, type, ml, status, kind, when, at, source }
   let opener = null;
   let busy = false;
 
@@ -384,7 +397,7 @@
   const timeOf = (iso) => new Date(iso).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
 
   function describe(a) {
-    if (a.type === 'milk') return { title: `Milk ${a.ml} ml`, tag: STATUS[a.status] };
+    if (a.type === 'milk') return { title: `Milk ${a.ml} ml`, html: `Milk <span class="nw">${a.ml} ml</span>`, tag: STATUS[a.status] };
     if (a.type === 'diaper') return { title: 'Diaper', tag: KIND[a.kind] };
     return { title: a.type === 'bath' ? 'Bath' : 'Burp', tag: '' };
   }
@@ -434,8 +447,10 @@
         html += `<li class="entry" data-type="${it.activity.type}">
           <time datetime="${it.createdAt}">${t}</time>
           <span class="dot" aria-hidden="true"></span>
-          <div class="what"><span class="title">${d.title}</span>${d.tag ? `<span class="tag">${d.tag}</span>` : ''}</div>
+          <div class="what"><span class="title">${d.html || d.title}</span>${d.tag ? `<span class="tag">${d.tag}</span>` : ''}</div>
           <div class="actions">
+            ${it.activity.type === 'milk' && CONSUMABLE.includes(it.activity.status)
+              ? `<button type="button" class="icon-btn sip" data-consume="${it.id}" aria-label="Log how much was consumed from ${d.title} at ${t}">${SIP}</button>` : ''}
             <button type="button" class="icon-btn" data-edit="${it.id}" aria-label="Edit ${d.title} at ${t}">${PENCIL}</button>
             <button type="button" class="icon-btn del" data-del="${it.id}" aria-label="Delete ${d.title} at ${t}">${TRASH}</button>
           </div>
@@ -467,10 +482,11 @@
   const inFuture = (s) => s.when === 'pick' && pickedTime(s) && pickedTime(s).getTime() > Date.now() + 60000;
 
   function valid(s) {
-    if (s.mode === 'add' && s.when === 'pick') {
+    if (s.mode !== 'edit' && s.when === 'pick') {
       const t = pickedTime(s);
       if (!t || Number.isNaN(t.getTime()) || inFuture(s)) return false;
     }
+    if (s.mode === 'consume') return Number.isInteger(s.ml) && s.ml >= 0 && s.ml < s.source.ml;
     if (s.type === 'milk') return s.ml > 0 && s.ml <= 2000 && !!s.status;
     if (s.type === 'diaper') return !!s.kind;
     return true;
@@ -479,14 +495,20 @@
   function paintSheet() {
     const s = sheet;
     sheetEl.dataset.type = s.type;
-    $('#sheetTitle').textContent = s.mode === 'add' ? TITLES[s.type] : 'Edit activity';
+    const consume = s.mode === 'consume';
+    $('#sheetTitle').textContent = consume ? 'How much is left?' : s.mode === 'add' ? TITLES[s.type] : 'Edit activity';
+    $('#sheetSub').hidden = !consume;
+    if (consume) $('#sheetSub').textContent = `From the ${s.source.ml} ml bottle at ${timeOf(s.source.createdAt)}`;
+    $('#amountLabel').textContent = consume ? 'Left in bottle' : 'Amount';
+    $('#statusField').hidden = consume;
+    paintConsumeResult();
     $('#typeField').hidden = s.mode !== 'edit';
     $('#milkFields').hidden = s.type !== 'milk';
     $('#diaperFields').hidden = s.type !== 'diaper';
     const showNote = s.mode === 'edit' && INSTANT.includes(s.type);
     $('#simpleNote').hidden = !showNote;
     $('#simpleNote').textContent = showNote ? `Changes this entry to a ${s.type}.` : '';
-    $('#whenField').hidden = s.mode !== 'add';
+    $('#whenField').hidden = s.mode === 'edit';
     $$('[data-when]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.when === s.when));
     const whenInput = $('#whenInput');
     whenInput.hidden = s.when !== 'pick';
@@ -496,10 +518,37 @@
     $$('[data-set-type]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.setType === s.type));
     $$('[data-status]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.status === s.status));
     $$('[data-kind]').forEach((b) => b.setAttribute('aria-pressed', b.dataset.kind === s.kind));
-    if (document.activeElement !== mlInput) mlInput.value = s.ml || '';
+    if (document.activeElement !== mlInput) mlInput.value = s.ml ?? '';
+    buildChips();
     paintChips();
-    saveBtn.textContent = s.mode === 'add' ? 'Add' : 'Save changes';
+    saveBtn.textContent = s.mode === 'edit' ? 'Save changes' : 'Add';
     saveBtn.disabled = !valid(s) || busy;
+  }
+  // Normal: preset amounts. Consume: amounts left (smaller than the bottle) plus "All".
+  function buildChips() {
+    const consume = sheet.mode === 'consume';
+    const key = consume ? `c${sheet.source.ml}` : 'n';
+    const box = $('#chips');
+    if (box.dataset.key === key) return;
+    box.dataset.key = key;
+    const values = consume ? CHIPS.filter((v) => v < sheet.source.ml) : CHIPS;
+    box.innerHTML = values.map((v) => `<button type="button" data-ml="${v}">${v}</button>`).join('')
+      + (consume ? '<button type="button" data-ml="0" aria-label="All of it was consumed, nothing left">All</button>' : '');
+  }
+  function paintConsumeResult() {
+    const el = $('#consumeResult');
+    const s = sheet;
+    el.hidden = s.mode !== 'consume';
+    if (el.hidden) return;
+    el.classList.remove('bad');
+    if (!Number.isInteger(s.ml)) {
+      el.textContent = 'Enter what is left, or tap All if it was all drunk.';
+    } else if (s.ml >= s.source.ml) {
+      el.classList.add('bad');
+      el.textContent = s.ml === s.source.ml ? 'That means nothing was consumed.' : `Can't be more than ${s.source.ml} ml.`;
+    } else {
+      el.innerHTML = `Consumed <strong>${s.source.ml - s.ml} ml</strong>`;
+    }
   }
   function paintChips() {
     $$('#chips button').forEach((b) => b.setAttribute('aria-pressed', Number(b.dataset.ml) === sheet.ml));
@@ -525,6 +574,7 @@
   }
 
   function activityFrom(s) {
+    if (s.mode === 'consume') return { type: 'milk', ml: s.source.ml - s.ml, status: 'consumed' };
     if (s.type === 'milk') return { type: 'milk', ml: s.ml, status: s.status };
     if (s.type === 'diaper') return { type: 'diaper', kind: s.kind };
     return { type: s.type };
@@ -550,14 +600,14 @@
     const s = sheet;
     const activity = activityFrom(s);
     try {
-      if (s.mode === 'add') {
+      if (s.mode !== 'edit') {
         await addActivity(activity, s.when === 'pick' ? pickedTime(s).toISOString() : undefined);
       } else {
         items = (await api('PATCH', `/api/items/${s.id}`, { activity })).items;
         render();
         toast('Changes saved');
       }
-      if (activity.type === 'milk') rememberMl(activity.ml);
+      if (activity.type === 'milk' && s.mode !== 'consume') rememberMl(activity.ml);
       closeSheet();
     } catch (e) {
       toast(e.message);
@@ -569,7 +619,6 @@
   }
 
   // ---------- events ----------
-  $('#chips').innerHTML = CHIPS.map((v) => `<button type="button" data-ml="${v}">${v}</button>`).join('');
 
   $$('[data-add]').forEach((btn) => btn.addEventListener('click', async () => {
     const type = btn.dataset.add;
@@ -577,6 +626,13 @@
   }));
 
   logEl.addEventListener('click', async (e) => {
+    const consume = e.target.closest('[data-consume]');
+    if (consume) {
+      const it = items.find((i) => i.id === consume.dataset.consume);
+      if (!it) return;
+      openSheet({ mode: 'consume', type: 'milk', ml: null, source: { ml: it.activity.ml, createdAt: it.createdAt }, when: 'now', at: '' });
+      return;
+    }
     const edit = e.target.closest('[data-edit]');
     const del = e.target.closest('[data-del]');
     if (edit) {
@@ -602,7 +658,11 @@
       sheet.type = t.dataset.setType;
       if (sheet.type === 'milk' && !sheet.ml) sheet.ml = lastMl();
     } else if (t.dataset.step) {
-      sheet.ml = Math.min(2000, Math.max(10, (sheet.ml || 0) + Number(t.dataset.step)));
+      if (sheet.mode === 'consume') {
+        sheet.ml = Math.min(sheet.source.ml, Math.max(0, (sheet.ml ?? 0) + Number(t.dataset.step)));
+      } else {
+        sheet.ml = Math.min(2000, Math.max(10, (sheet.ml || 0) + Number(t.dataset.step)));
+      }
       mlInput.value = sheet.ml;
     } else if (t.dataset.ml) {
       sheet.ml = Number(t.dataset.ml);
@@ -622,8 +682,10 @@
 
   mlInput.addEventListener('input', () => {
     if (!sheet) return;
-    sheet.ml = parseInt(mlInput.value, 10) || 0;
+    const v = parseInt(mlInput.value, 10);
+    sheet.ml = Number.isNaN(v) ? (sheet.mode === 'consume' ? null : 0) : v;
     paintChips();
+    paintConsumeResult();
     saveBtn.disabled = !valid(sheet) || busy;
   });
   mlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') mlInput.blur(); });
